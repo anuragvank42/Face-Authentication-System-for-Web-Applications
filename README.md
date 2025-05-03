@@ -33,7 +33,7 @@ A full-stack biometric authentication system using real-time **face recognition*
 [Face Embedding + Image Capture]
         ⇅
 [MySQL Storage & Retrieval]
-
+```
 
 | Layer      | Technology Used                              |
 | ---------- | -------------------------------------------- |
@@ -45,7 +45,7 @@ A full-stack biometric authentication system using real-time **face recognition*
 | Deployment | Tested on macOS, Linux. Azure-ready setup.   |
 
 
-🧠 How It Works
+##🧠 How It Works
 🔹 1. Liveness Detection
 Uses MediaPipe to track eye landmarks.
 
@@ -66,7 +66,7 @@ MJPEG stream shows face mesh + EAR indicators.
 Login only succeeds after live liveness check + embedding match.
 
 
-🚀 Setup & Run
+##🚀 Setup & Run
 ✅ Prerequisites
 Python 3.8+
 
@@ -74,7 +74,7 @@ MySQL Server
 
 Virtual environment tools (venv)
 
-Installation
+###Installation
 git clone https://github.com/anuragvank42/Face-Authentication-System-for-Web-Applications.git
 cd face-auth-mfa
 python3 -m venv venv
@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 
 
-Configure MySQL
+###Configure MySQL
 
 git clone https://github.com/anuragvank42/Face-Authentication-System-for-Web-Applications.git
 cd face-auth-mfa
@@ -92,12 +92,12 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-
+###▶️ Run the App
 cd backend
 python app_1.py
 
 
-✅ Roadmap
+###✅ Roadmap
  MJPEG Webcam Streaming
 
  Face Embedding via Dlib
