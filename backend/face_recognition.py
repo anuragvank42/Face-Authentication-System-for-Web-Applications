@@ -11,12 +11,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 detector = dlib.get_frontal_face_detector()
-shape_predictor = dlib.shape_predictor(
-    "/Users/anuragvankadara/IST 584/face-auth-mfa/venv/models/shape_predictor_68_face_landmarks.dat"
-)
-face_rec_model = dlib.face_recognition_model_v1(
-    "/Users/anuragvankadara/IST 584/face-auth-mfa/venv/models/dlib_face_recognition_resnet_model_v1.dat"
-)
+shape_predictor = dlib.shape_predictor(os.path.join(MODEL_DIR, "shape_predictor_68_face_landmarks.dat"))
+face_rec_model = dlib.face_recognition_model_v1(os.path.join(MODEL_DIR, "dlib_face_recognition_resnet_model_v1.dat"))
+
 
 # EAR/Liveness constants
 LEFT_EYE_IDXS = [362, 385, 387, 263, 373, 380]
