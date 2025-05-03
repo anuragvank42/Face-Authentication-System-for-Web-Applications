@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Camera Feed - MFA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+        }
+        .video-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .video-frame {
+            border: 4px solid #0d6efd;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 720px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        #status-container {
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+        #status-blinks, #status-liveness {
+            margin-bottom: 8px;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container video-container">
+    <h2>Live Camera Feed - Facial Authentication</h2>
+    <!-- pull frames from Flask’s /video_feed so is_live_face() runs -->
+    <img id="liveFeed" src="{{ url_for('video_feed') }}" class="video-frame" alt="Live Stream"/>
+
+    <div id="status-container">
+        <div id="status-blinks">Blinks: <span id="blinkCount">0</span>/5</div>
+        <div id="status-liveness">Liveness Status: <span id="livenessStatus">Awaiting Detection...</span></div>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-success" onclick="captureFace()">📸 Capture Face</button>
+    </div>
+
+    <input type="hidden" id="mode"     value="{{ request.args.get('mode')     or 'login' }}">
+    <input type="hidden" id="username" value="{{ request.args.get('username','') }}">
+    <input type="hidden" id="password" value="{{ request.args.get('password','') }}">
+
+    <canvas id="canvas"></canvas>
+
+    <div class="mt-4">
+        <a href="{{ url_for('login') }}" class="btn btn-outline-light">Back to Login</a>
+    </div>
+</div>
+
+<script>
+    const liveFeed = document.getElementById("liveFeed");
+    const canvas   = document.getElementById("canvas");
+    const ctx      = canvas.getContext("2d");
+
+    const mode     = document.getElementById("mode").value;
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    function updateStatus(blinks, liveness) {
+        document.getElementById("blinkCount").innerText     = blinks;
+        document.getElementById("livenessStatus").innerText = liveness;
+    }
+
+    function captureFace() {
+        // draw current MJPEG frame into canvas
+        canvas.width  = liveFeed.clientWidth;
+        canvas.height = liveFeed.clientHeight;
+        ctx.drawImage(liveFeed, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL("image/png");
+
+        fetch("/capture_face", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                image:    imageData,
+                mode:     mode,
+                username: username,
+                password: password
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            updateStatus(data.blink_count || 0,
+                         data.liveness     || "N/A");
+            alert(data.message || "Face captured.");
+        })
+        .catch(err => {
+            console.error("❌ Error sending image:", err);
+            alert("Failed to send captured face.");
+        });
+    }
+
+    // poll server for live blink/liveness status every second
+    setInterval(() => {
+        fetch("/get_status")
+            .then(res => res.json())
+            .then(data => {
+                updateStatus(data.blink_count || 0,
+                             data.liveness_confirmed
+                               ? "Confirmed"
+                               : "Not Confirmed");
+            })
+            .catch(err => {
+                console.error("❌ Error fetching live status:", err);
+            });
+    }, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Face Authentication - Live Feed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #0f172a;
+      overflow: hidden;
+    }
+    #tsparticles {
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body class="text-white flex flex-col items-center justify-center min-h-screen p-4">
+  <div id="tsparticles"></div>
+
+  <h2 class="text-3xl mb-4 text-teal-400 font-bold">Facial Authentication</h2>
+  <img id="liveFeed" src="{{ url_for('video_feed') }}" class="rounded-xl border-4 border-teal-500 max-w-md shadow-2xl" />
+
+  <div class="mt-6 text-center space-y-2">
+    <p>Blinks: <span id="blinkCount">0</span></p>
+    <p>Liveness Status: <span id="livenessStatus" class="text-yellow-400">Awaiting Detection...</span></p>
+    <p>Head Movement: 
+      <span id="headLeft" class="text-pink-400">Left ❌</span>, 
+      <span id="headRight" class="text-pink-400">Right ❌</span>
+    </p>
+  </div>
+
+  <button id="captureBtn" class="mt-6 px-6 py-2 bg-teal-600 hover:bg-teal-700 rounded-md font-semibold" disabled>
+    🔒 Waiting for Liveness...
+  </button>
+
+  <div class="mt-4">
+    <a href="{{ url_for('login') }}" class="text-teal-400 hover:underline text-sm">🔙 Back to Login</a>
+  </div>
+
+  <script>
+    const captureBtn = document.getElementById("captureBtn");
+
+    function updateStatus(data) {
+      const blinks = data.blink_count || 0;
+      const liveness = data.liveness_confirmed ? "Confirmed ✅" : "Not Confirmed";
+      const headLeft = data.head_left ? "✅" : "❌";
+      const headRight = data.head_right ? "✅" : "❌";
+
+      document.getElementById("blinkCount").innerText = blinks;
+      document.getElementById("livenessStatus").innerText = liveness;
+      document.getElementById("headLeft").innerText = `Left ${headLeft}`;
+      document.getElementById("headRight").innerText = `Right ${headRight}`;
+
+      if (data.liveness_confirmed) {
+        captureBtn.disabled = false;
+        captureBtn.innerText = "📸 Capture Face";
+      } else {
+        captureBtn.disabled = true;
+        captureBtn.innerText = "🔒 Waiting for Liveness...";
+      }
+    }
+
+    captureBtn.onclick = () => {
+      fetch("/capture_face", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: "use-latest-mjpeg-frame"
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        updateStatus(data);
+        alert(data.message || "✅ Face captured.");
+      })
+      .catch(err => {
+        console.error("❌ Capture error:", err);
+        alert("Error capturing face.");
+      });
+    };
+
+    setInterval(() => {
+      fetch("/get_status")
+        .then(res => res.json())
+        .then(data => updateStatus(data));
+    }, 1000);
+
+    tsParticles.load("tsparticles", {
+      fullScreen: { enable: false },
+      background: { color: "#0f172a" },
+      particles: {
+        number: { value: 50 },
+        color: { value: "#14b8a6" },
+        links: { enable: true, distance: 120, color: "#14b8a6", opacity: 0.4 },
+        move: { enable: true, speed: 1 },
+        size: { value: { min: 1, max: 3 } },
+        opacity: { value: 0.4 }
+      },
+      interactivity: {
+        events: { onHover: { enable: true, mode: "repulse" } },
+        modes: { repulse: { distance: 100 } }
+      }
+    });
+  </script>
+</body>
+</html>

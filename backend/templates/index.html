@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition MFA</title>
+    <script>
+        function handleFormSubmit(event, action) {
+            event.preventDefault();
+            let formData = new FormData();
+            formData.append("username", document.getElementById("username").value);
+            formData.append("password", document.getElementById("password").value);
+            formData.append("face", document.getElementById("face").files[0]);
+
+            fetch(`http://127.0.0.1:5000/${action}`, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <h2>Face Recognition Authentication</h2>
+
+    <h3>Register</h3>
+    <form onsubmit="handleFormSubmit(event, 'register')">
+        <label>Username:</label>
+        <input type="text" id="username" required><br><br>
+
+        <label>Password:</label>
+        <input type="password" id="password" required><br><br>
+
+        <label>Upload Face Image:</label>
+        <input type="file" id="face" accept="image/*" required><br><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <h3>Login</h3>
+    <form onsubmit="handleFormSubmit(event, 'login')">
+        <label>Upload Face Image:</label>
+        <input type="file" id="face" accept="image/*" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

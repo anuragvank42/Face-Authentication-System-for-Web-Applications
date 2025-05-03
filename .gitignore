@@ -1,0 +1,21 @@
+# Ignore virtual environment
+venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore logs
+*.log
+
+# Ignore compiled binaries
+*.so
+*.dylib
+
+# Ignore IDE/config files
+.vscode/
+.DS_Store
+
+# Ignore zip uploads
+*.zip
+
