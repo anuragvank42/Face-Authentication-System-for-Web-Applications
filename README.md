@@ -45,6 +45,8 @@ A full-stack biometric authentication system using real-time **face recognition*
 | Deployment | Tested on macOS, Linux. Azure-ready setup.   |
 
 
+
+
 ##🧠 How It Works
 🔹 1. Liveness Detection
 Uses MediaPipe to track eye landmarks.
@@ -64,6 +66,8 @@ Stored securely in MySQL alongside original face images.
 MJPEG stream shows face mesh + EAR indicators.
 
 Login only succeeds after live liveness check + embedding match.
+
+
 
 
 ##🚀 Setup & Run
